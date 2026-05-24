@@ -301,9 +301,6 @@ class MultiWorld():
         from worlds import AutoWorld
 
         for group_id, group in self.groups.items():
-            # ensure that progression items are linked first, then non-progression
-            self.itempool.sort(key=lambda item: item.advancement, reverse=True)
-
             def find_common_pool(players: Set[int], shared_pool: Set[str]) -> Tuple[
                 Optional[Dict[int, Dict[str, int]]], Optional[Dict[str, List[int]]]
             ]:
@@ -333,6 +330,11 @@ class MultiWorld():
                     else:
                         for player in players:
                             del counters[player][item]
+
+                for player in players:
+                    for item_name in counters[player]:
+                        player_classifications[player][item_name].sort(
+                            key=lambda c: (bool(c & ItemClassification.progression), c), reverse=True)
 
                 classifications: Dict[str, List[int]] = {}
                 for item_name, item_count in next(iter(counters.values())).items():
